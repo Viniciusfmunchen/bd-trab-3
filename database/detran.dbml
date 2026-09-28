@@ -1,0 +1,108 @@
+// ==========================================
+// 1. DADOS DO VEÍCULO FÍSICO (A INSTÂNCIA)
+// ==========================================
+Table veiculo {
+    id_veiculo integer
+    cod_renavam varchar[11]
+    placa varchar[7]
+    num_chassi varchar[17]
+    num_motor varchar[30]        // Trazido para cá (simplificação)
+    ano_fabricacao integer
+    eixos integer                // Adicionado (Ex: 2, 3, 4...)
+    lotacao integer              // Adicionado (Ex: 5 passageiros)
+    peso_bruto_total decimal     // Adicionado (PBT)
+    cmt decimal                  // Adicionado (Capacidade Max Tração)
+    
+    // Chaves Estrangeiras (Características mutáveis do veículo)
+    id_modelo_veiculo integer
+    id_tipo_veiculo integer
+    id_especie_veiculo integer
+    id_categoria_veiculo integer
+    id_cor integer
+    id_carroceria integer        // Adicionado (Baú, Caçamba, Não Aplicável)
+    id_proprietario integer      // Adicionado (Dono atual do veículo)
+}
+
+// ==========================================
+// 2. TABELAS DE DOMÍNIO (CARACTERÍSTICAS)
+// ==========================================
+Table cor {
+    id_cor integer
+    nome_cor varchar[255]
+}
+
+Table carroceria {
+    id_carroceria integer
+    nome_carroceria varchar[255]
+}
+
+Table tipo_veiculo {
+    id_tipo_veiculo integer      // Corrigido (removido '_modelo_')
+    nome_tipo_veiculo varchar[55]
+}
+
+Table especie_veiculo {
+    id_especie_veiculo integer   // Corrigido (removido '_modelo_')
+    nome_especie_veiculo varchar[255]
+}
+
+Table categoria_veiculo {
+    id_categoria_veiculo integer
+    nome_categoria_veiculo varchar[255]
+}
+
+// ==========================================
+// 3. COMBUSTÍVEL (RELAÇÃO N:N)
+// ==========================================
+Table tipo_combustivel {
+    id_tipo_combustivel integer
+    nome_tipo_combustivel varchar[255]
+}
+
+Table tipo_combustivel_veiculo {
+    id_veiculo integer
+    id_tipo_combustivel integer
+    // PK composta pelos dois campos acima
+}
+
+// ==========================================
+// 4. CATÁLOGO DE FÁBRICA
+// ==========================================
+Table marca_veiculo {
+    id_marca_veiculo integer
+    nome_marca_veiculo varchar[255]
+}
+
+Table modelo_veiculo {
+    id_modelo_veiculo integer
+    id_marca_veiculo integer
+    nome_modelo_veiculo varchar[255]
+    ano_modelo_veiculo integer
+}
+
+// ==========================================
+// 5. REQUISITOS DA ATIVIDADE (DETRAN)
+// ==========================================
+Table proprietario {
+    id_proprietario integer
+    nome varchar[255]
+    cpf varchar[14]
+    cnh varchar[15]
+}
+
+Table historico_ipva {
+    id_ipva integer
+    id_veiculo integer
+    ano_exercicio integer
+    valor decimal
+    status_pagamento varchar[50] // 'Pago', 'Pendente'
+}
+
+Table infracao {
+    id_infracao integer
+    id_veiculo integer
+    data_infracao date
+    descricao varchar[255]
+    valor decimal
+    pontos integer
+}   
