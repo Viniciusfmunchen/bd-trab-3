@@ -1,108 +1,241 @@
-// ==========================================
-// 1. DADOS DO VEÍCULO FÍSICO (A INSTÂNCIA)
-// ==========================================
 Table veiculo {
-    id_veiculo integer
-    cod_renavam varchar[11]
-    placa varchar[7]
-    num_chassi varchar[17]
-    num_motor varchar[30]        // Trazido para cá (simplificação)
-    ano_fabricacao integer
-    eixos integer                // Adicionado (Ex: 2, 3, 4...)
-    lotacao integer              // Adicionado (Ex: 5 passageiros)
-    peso_bruto_total decimal     // Adicionado (PBT)
-    cmt decimal                  // Adicionado (Capacidade Max Tração)
-    
-    // Chaves Estrangeiras (Características mutáveis do veículo)
+    id_veiculo integer [pk, increment]
+    placa varchar(7) [not null, unique]
+    cod_renavam varchar(11) [not null, unique]
+    num_chassi varchar(17) [not null, unique]
+    ano_fabricacao integer [not null]
+    id_cor integer
     id_modelo_veiculo integer
-    id_tipo_veiculo integer
-    id_especie_veiculo integer
-    id_categoria_veiculo integer
-    id_cor integer
-    id_carroceria integer        // Adicionado (Baú, Caçamba, Não Aplicável)
-    id_proprietario integer      // Adicionado (Dono atual do veículo)
+    id_proprietario integer [not null]
+    id_motorista_principal integer
 }
 
-// ==========================================
-// 2. TABELAS DE DOMÍNIO (CARACTERÍSTICAS)
-// ==========================================
 Table cor {
-    id_cor integer
-    nome_cor varchar[255]
+    id_cor integer [pk]
+    nome_cor varchar(255)
 }
 
-Table carroceria {
-    id_carroceria integer
-    nome_carroceria varchar[255]
+Table marca_veiculo {
+    id_marca_veiculo integer [pk]
+    nome_marca_veiculo varchar(255)
 }
 
 Table tipo_veiculo {
-    id_tipo_veiculo integer      // Corrigido (removido '_modelo_')
-    nome_tipo_veiculo varchar[55]
-}
-
-Table especie_veiculo {
-    id_especie_veiculo integer   // Corrigido (removido '_modelo_')
-    nome_especie_veiculo varchar[255]
-}
-
-Table categoria_veiculo {
-    id_categoria_veiculo integer
-    nome_categoria_veiculo varchar[255]
-}
-
-// ==========================================
-// 3. COMBUSTÍVEL (RELAÇÃO N:N)
-// ==========================================
-Table tipo_combustivel {
-    id_tipo_combustivel integer
-    nome_tipo_combustivel varchar[255]
-}
-
-Table tipo_combustivel_veiculo {
-    id_veiculo integer
-    id_tipo_combustivel integer
-    // PK composta pelos dois campos acima
-}
-
-// ==========================================
-// 4. CATÁLOGO DE FÁBRICA
-// ==========================================
-Table marca_veiculo {
-    id_marca_veiculo integer
-    nome_marca_veiculo varchar[255]
+    id_tipo_veiculo integer [pk]
+    nome_tipo_veiculo varchar(255)
 }
 
 Table modelo_veiculo {
-    id_modelo_veiculo integer
+    id_modelo_veiculo integer [pk]
     id_marca_veiculo integer
-    nome_modelo_veiculo varchar[255]
-    ano_modelo_veiculo integer
+    id_tipo_veiculo integer
+    nome_modelo_veiculo varchar(255)
 }
 
-// ==========================================
-// 5. REQUISITOS DA ATIVIDADE (DETRAN)
-// ==========================================
-Table proprietario {
-    id_proprietario integer
-    nome varchar[255]
-    cpf varchar[14]
-    cnh varchar[15]
+Table uf {
+    id_uf integer [pk]
+    nome_uf varchar(255) [not null]
+    sigla_uf varchar(2) [not null]
+}
+
+Table cidade {
+    id_cidade integer [pk]
+    id_uf integer [not null]
+    nome_cidade varchar(255) [not null]
+    sigla_cidade varchar(255) [not null]
+}
+
+Table bairro {
+    id_bairro integer [pk]
+    nome_bairro varchar(255)
+}
+
+Table tipo_logradouro {
+    id_tipo_logradouro integer [pk]
+    nome_tipo_logradouro varchar(255) [not null]
+    sigla_tipo_logradouro varchar(10) [not null]
+}
+
+Table logradouro {
+    id_logradouro integer [pk]
+    id_tipo_logradouro integer [not null]
+    nome_logradouro varchar(255) [not null]
+}
+
+Table endereco {
+    id_endereco integer [pk]
+    id_cidade integer [not null]
+    id_bairro integer [not null]
+    id_logradouro integer [not null]
+    cep varchar(8)
+}
+
+Table tipo_pessoa {
+    id_tipo_pessoa integer [pk]
+    nome_tipo_pessoa varchar(255)
+}
+
+Table pessoa {
+    id_pessoa integer [pk, increment]
+    id_tipo_pessoa integer [not null]
+    id_endereco integer [not null]
+    numero_endereco integer [not null]
+    complemento_endereco varchar(255)
+    documento varchar(14) [not null, unique]
+    nome varchar(255) [not null]
+}
+
+Table cnh {
+    num_registro varchar(15) [pk]
+    id_pessoa integer [not null, unique]
+    data_validade date [not null]
+    pontuacao_atual integer [default: 0]
+}
+
+Table categoria_cnh {
+    id_categoria_cnh integer [pk]
+    nome_categoria_cnh varchar(2)
+}
+
+Table cnh_categoria {
+    num_registro varchar(15) [not null]
+    id_categoria_cnh integer [not null]
+    
+    indexes {
+      (num_registro, id_categoria_cnh) [pk]
+    }
+}
+
+Table ddd {
+    codigo_ddd varchar(3) [pk]
+}
+
+Table ddi {
+    codigo_ddi varchar(5) [pk]
+}
+
+Table telefone {
+    id_telefone integer [pk, increment]
+    id_pessoa integer [not null]
+    codigo_ddd varchar(3) [not null]
+    codigo_ddi varchar(5) [not null]
+    numero_telefone varchar(15) [not null]
+}
+
+Table email {
+    id_email integer [pk, increment]
+    id_pessoa integer [not null]
+    endereco_email varchar(255) [not null]
+}
+
+Table status_ipva {
+    id_status_ipva integer [pk]
+    nome_status_ipva varchar(255)
 }
 
 Table historico_ipva {
-    id_ipva integer
-    id_veiculo integer
-    ano_exercicio integer
-    valor decimal
-    status_pagamento varchar[50] // 'Pago', 'Pendente'
+    id_ipva integer [pk, increment]
+    id_veiculo integer [not null]
+    ano_exercicio integer [not null]
+    valor_base decimal [not null]
+    valor_pago decimal
+    data_pagamento date
+    data_vencimento date [not null]
+    id_status_ipva integer [not null]
+}
+
+Table gravidade_infracao {
+    id_gravidade integer [pk]
+    nome_gravidade varchar(50) [not null]
+}
+
+Table tipo_infracao {
+    id_tipo_infracao integer [pk]
+    codigo_ctb varchar(10) [not null, unique]
+    descricao varchar(255) [not null]
+    id_gravidade integer [not null]
+    pontos integer [not null]
+    valor_base decimal [not null]
+}
+
+Table status_infracao {
+    id_status_infracao integer [pk]
+    nome_status_infracao varchar(255)
+}
+
+Table jurisdicao_via {
+    id_jurisdicao_via integer [pk]
+    nome_jurisdicao_via varchar(50)
+}
+
+Table tipo_via {
+    id_tipo_via integer [pk]
+    nome_tipo_via varchar(50) [not null]
+}
+
+Table via_transito {
+    id_via integer [pk, increment]
+    id_tipo_via integer [not null]
+    nome_oficial varchar(255) [not null]
+    id_jurisdicao_via integer [not null]
+}
+
+Table local_infracao {
+    id_local_infracao integer [pk, increment]
+    id_via integer [not null]
+    id_cidade integer [not null]
+    latitude decimal
+    longitude decimal
+    referencia varchar(255)
 }
 
 Table infracao {
-    id_infracao integer
-    id_veiculo integer
-    data_infracao date
-    descricao varchar[255]
-    valor decimal
-    pontos integer
-}   
+    id_infracao integer [pk, increment]
+    id_veiculo integer [not null]
+    id_status_infracao integer [not null]
+    id_tipo_infracao integer [not null]
+    id_condutor_infrator integer
+    id_local_infracao integer [not null]
+    data_hora_infracao timestamp [not null]
+    data_vencimento date [not null]
+    data_pagamento date
+}
+
+Ref: veiculo.id_cor > cor.id_cor
+Ref: veiculo.id_modelo_veiculo > modelo_veiculo.id_modelo_veiculo
+Ref: modelo_veiculo.id_marca_veiculo > marca_veiculo.id_marca_veiculo
+Ref: modelo_veiculo.id_tipo_veiculo > tipo_veiculo.id_tipo_veiculo
+
+Ref: cidade.id_uf > uf.id_uf
+Ref: logradouro.id_tipo_logradouro > tipo_logradouro.id_tipo_logradouro
+Ref: endereco.id_cidade > cidade.id_cidade
+Ref: endereco.id_bairro > bairro.id_bairro
+Ref: endereco.id_logradouro > logradouro.id_logradouro
+
+Ref: pessoa.id_endereco > endereco.id_endereco
+Ref: pessoa.id_tipo_pessoa > tipo_pessoa.id_tipo_pessoa
+Ref: veiculo.id_proprietario > pessoa.id_pessoa
+Ref: veiculo.id_motorista_principal > pessoa.id_pessoa
+Ref: cnh.id_pessoa > pessoa.id_pessoa
+Ref: cnh_categoria.num_registro > cnh.num_registro
+Ref: cnh_categoria.id_categoria_cnh > categoria_cnh.id_categoria_cnh
+
+Ref: telefone.id_pessoa > pessoa.id_pessoa
+Ref: telefone.codigo_ddd > ddd.codigo_ddd
+Ref: telefone.codigo_ddi > ddi.codigo_ddi
+Ref: email.id_pessoa > pessoa.id_pessoa
+
+Ref: historico_ipva.id_veiculo > veiculo.id_veiculo
+Ref: historico_ipva.id_status_ipva > status_ipva.id_status_ipva
+
+Ref: via_transito.id_tipo_via > tipo_via.id_tipo_via
+Ref: via_transito.id_jurisdicao_via > jurisdicao_via.id_jurisdicao_via
+Ref: local_infracao.id_via > via_transito.id_via
+Ref: local_infracao.id_cidade > cidade.id_cidade
+Ref: infracao.id_local_infracao > local_infracao.id_local_infracao
+
+Ref: infracao.id_veiculo > veiculo.id_veiculo
+Ref: infracao.id_tipo_infracao > tipo_infracao.id_tipo_infracao
+Ref: infracao.id_condutor_infrator > pessoa.id_pessoa
+Ref: infracao.id_status_infracao > status_infracao.id_status_infracao
+Ref: tipo_infracao.id_gravidade > gravidade_infracao.id_gravidade
